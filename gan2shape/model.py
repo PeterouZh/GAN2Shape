@@ -134,7 +134,7 @@ class GAN2Shape():
             # copy model weights, used for reseting weights
             self.ckpt = deepcopy(self.get_model_state())
 
-        self.init_parsing_model()  # initialize image parsing models
+        self.init_parsing_model(cfgs=cfgs)  # initialize image parsing models
         self.proj_idx = 0  # index used for loading projected samples
         self.canon_mask = None
 
@@ -361,11 +361,13 @@ class GAN2Shape():
         samples = torch.cat(samples, dim=0)
         return samples
 
-    def init_parsing_model(self):
+    def init_parsing_model(self, cfgs):
         if self.category in ['face', 'synface']:
             from .parsing import BiSeNet
             self.parse_model = BiSeNet(n_classes=19)
-            self.parse_model.load_state_dict(torch.load('checkpoints/parsing/bisenet.pth', map_location=map_func))
+            # self.parse_model.load_state_dict(torch.load('checkpoints/parsing/bisenet.pth', map_location=map_func))
+            self.parse_model.load_state_dict(
+                torch.load(cfgs.get('BiSeNet', "checkpoints/parsing/bisenet.pth"), map_location=map_func))
         else:
             from .parsing import PSPNet
             if self.category == 'church':
